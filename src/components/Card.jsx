@@ -1,7 +1,7 @@
 import React from "react";
 
-export default function Card({ data }) {
-  const { src, des, originalTitle, pages, releaseDate, title } = data;
+export default function Card({ data, delFunc, editFunc, index }) {
+  const { src, des, originalTitle, pages, releaseDate, title, id } = data;
 
   return (
     <>
@@ -13,8 +13,18 @@ export default function Card({ data }) {
         <p>{releaseDate}</p>
         <p>{des}</p>
         <div className="flex gap-2">
-          <button className="capitalize bg-white">edit</button>
-          <button className="capitalize bg-white">delete</button>
+          <button
+            className="capitalize bg-white border-[0.1rem] border-black"
+            onClick={() => editFunc(data, index)}
+          >
+            edit
+          </button>
+          <button
+            className="capitalize bg-white border-[0.1rem] border-black"
+            onClick={() => delFunc(index)}
+          >
+            delete
+          </button>
         </div>
       </div>
     </>

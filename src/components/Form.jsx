@@ -1,15 +1,9 @@
 import React, { useState } from "react";
-import { postData } from "../APIs/CRUDAPIS";
+import { postData, putData } from "../APIs/CRUDAPIS";
+import { usePost } from "../context/PostContext";
 
-export default function Form() {
-  const [dataObj, setDataObj] = useState({
-    title: "",
-    originalTitle: "",
-    pages: "",
-    releaseDate: "",
-    des: "",
-    src: "",
-  });
+export default function Form({ setAPI_Data, isEdit, setIsEdit }) {
+  const { setDataObj, dataObj } = usePost();
 
   const handlOnChange = (e) => {
     const { name, value } = e.target;
@@ -22,13 +16,48 @@ export default function Form() {
   };
 
   const addData = async (data) => {
-    const res = await postData(data);
-    console.log(res);
+    try {
+      const res = await postData(data);
+      setAPI_Data((prev) => {
+        return [...prev, data];
+      });
+    } catch (error) {
+      alert(error);
+    }
   };
 
-  const handleOnSubmit = (data, eObj) => {
-    eObj.preventDefault();
+  const handleOnSubmit = (data) => {
     addData(data);
+    setDataObj({
+      title: "",
+      originalTitle: "",
+      pages: "",
+      releaseDate: "",
+      des: "",
+      src: "",
+    });
+  };
+
+  const handleOnEdit = async (updatedPost) => {
+    console.log(updatedPost);
+
+    const res = await putData(updatedPost.title, updatedPost);
+    setAPI_Data((prev) => {
+      return prev.map((curObj) => {
+        return curObj.title === updatedPost.title ? updatedPost : curObj;
+      });
+    });
+
+    setDataObj({
+      title: "",
+      originalTitle: "",
+      pages: "",
+      releaseDate: "",
+      des: "",
+      src: "",
+    });
+
+    setIsEdit(false);
   };
 
   const { title, originalTitle, pages, releaseDate, des, src } = dataObj;
@@ -37,7 +66,10 @@ export default function Form() {
     <>
       <form
         className="bg-green-900 w-1/2 rounded-lg mx-auto mt-5"
-        onSubmit={(e) => handleOnSubmit(dataObj, e)}
+        onSubmit={(e) => {
+          e.preventDefault();
+          isEdit === false ? handleOnSubmit(dataObj) : handleOnEdit(dataObj);
+        }}
       >
         <div className="flex flex-wrap gap-2 justify-center p-4  ">
           <input
@@ -89,7 +121,7 @@ export default function Form() {
             onChange={handlOnChange}
           />
           <button className="rounded-lg p-3 text-green-950 w-1/2 bg-white">
-            add
+            {isEdit === false ? "add" : "edit"}
           </button>
         </div>
       </form>
